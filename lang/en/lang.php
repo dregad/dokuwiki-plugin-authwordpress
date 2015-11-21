@@ -5,12 +5,4 @@
  * @author Damien Regad <dregad@mantisbt.org>
  */
 
-// menu entry for admin plugins
-// $lang['menu'] = 'Your menu entry';
-
-// custom language strings for the plugin
-// $lang['fixme'] = 'FIXME';
-
-
-
-//Setup VIM: ex: et ts=4 :
+$lang['error_connect_failed'] = 'Unable to connect to the WordPress database (%s)<br>Please check your settings.';
