@@ -2,288 +2,145 @@
 /**
  * DokuWiki Plugin authwordpress (Auth Component)
  *
- * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
- * @author  Damien Regad <dregad@mantisbt.org>
+ * Provides authentication against a WordPress MySQL database backend
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the COPYING file in your DokuWiki folder for details
+ *
+ * @author     Damien Regad <dregad@mantisbt.org>
+ * @copyright  2015 Damien Regad
+ * @license    GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
+ * @version    1.0
+ * @link       https://github.com/dregad/dokuwiki-authwordpress
  */
+
 
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+/**
+ * WordPress password hashing framework
+ */
+require_once('class-phpass.php');
+
+/**
+ * Authentication class
+ */
 class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
+	/**
+	 * SQL statement to retrieve User data from WordPress DB
+	 * (including group memberships)
+	 */
+	const SQL_WP_USER_DATA = "SELECT
+			id, user_login, user_pass, user_email, display_name,
+			meta_value AS groups
+		FROM wp_users u
+		JOIN wp_usermeta m ON u.id = m.user_id
+		WHERE meta_key = 'wp_capabilities'
+		AND user_login = :user";
 
-    /**
-     * Constructor.
-     */
-    public function __construct() {
-        parent::__construct(); // for compatibility
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
 
-        // FIXME set capabilities accordingly
-        //$this->cando['addUser']     = false; // can Users be created?
-        //$this->cando['delUser']     = false; // can Users be deleted?
-        //$this->cando['modLogin']    = false; // can login names be changed?
-        //$this->cando['modPass']     = false; // can passwords be changed?
-        //$this->cando['modName']     = false; // can real names be changed?
-        //$this->cando['modMail']     = false; // can emails be changed?
-        //$this->cando['modGroups']   = false; // can groups be changed?
-        //$this->cando['getUsers']    = false; // can a (filtered) list of users be retrieved?
-        //$this->cando['getUserCount']= false; // can the number of users be retrieved?
-        //$this->cando['getGroups']   = false; // can a list of available groups be retrieved?
-        //$this->cando['external']    = false; // does the module do external auth checking?
-        //$this->cando['logout']      = true; // can the user logout again? (eg. not possible with HTTP auth)
+		// Try to establish a connection to the WordPress DB
+		// abort in case of failure
+		try {
+			$wp_db = $this->wp_connect();
+		}
+		catch (Exception $e) {
+			msg(sprintf($this->getLang('error_connect_failed'), $e->getMessage()));
+			$this->success = false;
+			return;
+		}
 
-        // FIXME intialize your auth system and set success to true, if successful
-        $this->success = true;
-    }
+		$this->success = true;
+	}
 
 
-    /**
-     * Log off the current user [ OPTIONAL ]
-     */
-    //public function logOff() {
-    //}
+	/**
+	 * Check user+password
+	 *
+	 * @param   string $user the user name
+	 * @param   string $pass the clear text password
+	 * @return  bool
+	 *
+	 * @uses PasswordHash::CheckPassword WordPress password hasher
+	 */
+	public function checkPass($user, $pass) {
+		$data = $this->getUserData($user);
+		if ($data === false) {
+			return false;
+		}
 
-    /**
-     * Do all authentication [ OPTIONAL ]
-     *
-     * @param   string  $user    Username
-     * @param   string  $pass    Cleartext Password
-     * @param   bool    $sticky  Cookie should not expire
-     * @return  bool             true on successful auth
-     */
-    //public function trustExternal($user, $pass, $sticky = false) {
-        /* some example:
+		$hasher = new PasswordHash(8, true);
+		return $hasher->CheckPassword($pass, $data['pass']);
+	}
 
-        global $USERINFO;
-        global $conf;
-        $sticky ? $sticky = true : $sticky = false; //sanity check
 
-        // do the checking here
+	/**
+	 * Returns info about the given user
+	 *
+	 * @param   string $user the user name
+	 * @return  array containing user data or false
+	 */
+	function getUserData($user, $requireGroups=true) {
+		global $conf;
 
-        // set the globals if authed
-        $USERINFO['name'] = 'FIXME';
-        $USERINFO['mail'] = 'FIXME';
-        $USERINFO['grps'] = array('FIXME');
-        $_SERVER['REMOTE_USER'] = $user;
-        $_SESSION[DOKU_COOKIE]['auth']['user'] = $user;
-        $_SESSION[DOKU_COOKIE]['auth']['pass'] = $pass;
-        $_SESSION[DOKU_COOKIE]['auth']['info'] = $USERINFO;
-        return true;
+		$wp_db = $this->wp_connect();
+		$stmt = $wp_db->prepare(self::SQL_WP_USER_DATA);
+		$stmt->bindParam(':user', $user);
 
-        */
-    //}
+		if (!$stmt->execute()) {
+			return false;
+		}
+		$user = $stmt->fetch();
 
-    /**
-     * Check user+password
-     *
-     * May be ommited if trustExternal is used.
-     *
-     * @param   string $user the user name
-     * @param   string $pass the clear text password
-     * @return  bool
-     */
-    public function checkPass($user, $pass) {
-        // FIXME implement password check
-        return false; // return true if okay
-    }
+		// Group membership - add DokuWiki's default group
+		$groups = array_keys(unserialize($user['groups']));
+		$groups[] = $conf['defaultgroup'];
 
-    /**
-     * Return user info
-     *
-     * Returns info about the given user needs to contain
-     * at least these fields:
-     *
-     * name string  full name of the user
-     * mail string  email addres of the user
-     * grps array   list of groups the user is in
-     *
-     * @param   string $user the user name
-     * @return  array containing user data or false
-     */
-    public function getUserData($user) {
-        // FIXME implement
-        return false;
-    }
+		$info = array(
+			'user' => $user['user_login'],
+			'name' => $user['display_name'],
+			'pass' => $user['user_pass'],
+			'mail' => $user['user_email'],
+			'grps' => $groups,
+		);
+		return $info;
+	}
 
-    /**
-     * Create a new User [implement only where required/possible]
-     *
-     * Returns false if the user already exists, null when an error
-     * occurred and true if everything went well.
-     *
-     * The new user HAS TO be added to the default group by this
-     * function!
-     *
-     * Set addUser capability when implemented
-     *
-     * @param  string     $user
-     * @param  string     $pass
-     * @param  string     $name
-     * @param  string     $mail
-     * @param  null|array $grps
-     * @return bool|null
-     */
-    //public function createUser($user, $pass, $name, $mail, $grps = null) {
-        // FIXME implement
-    //    return null;
-    //}
 
-    /**
-     * Modify user data [implement only where required/possible]
-     *
-     * Set the mod* capabilities according to the implemented features
-     *
-     * @param   string $user    nick of the user to be changed
-     * @param   array  $changes array of field/value pairs to be changed (password will be clear text)
-     * @return  bool
-     */
-    //public function modifyUser($user, $changes) {
-        // FIXME implement
-    //    return false;
-    //}
+	/**
+	 * Connect to Wordpress database
+	 *
+	 * @return PDO object
+	 */
+	private function wp_connect() {
+		$dsn = array(
+			'host=' . $this->getConf('hostname'),
+			'dbname=' . $this->getConf('database'),
+		);
+		$port = $this->getConf('port');
+		if ($port) {
+			$dsn[] = 'port=' . $port;
+		}
+		$dsn = 'mysql:' . implode(';', $dsn);
 
-    /**
-     * Delete one or more users [implement only where required/possible]
-     *
-     * Set delUser capability when implemented
-     *
-     * @param   array  $users
-     * @return  int    number of users deleted
-     */
-    //public function deleteUsers($users) {
-        // FIXME implement
-    //    return false;
-    //}
+		return new PDO($dsn, $this->getConf('username'), $this->getConf('password'));
+	}
 
-    /**
-     * Bulk retrieval of user data [implement only where required/possible]
-     *
-     * Set getUsers capability when implemented
-     *
-     * @param   int   $start     index of first user to be returned
-     * @param   int   $limit     max number of users to be returned
-     * @param   array $filter    array of field/pattern pairs, null for no filter
-     * @return  array list of userinfo (refer getUserData for internal userinfo details)
-     */
-    //public function retrieveUsers($start = 0, $limit = -1, $filter = null) {
-        // FIXME implement
-    //    return array();
-    //}
-
-    /**
-     * Return a count of the number of user which meet $filter criteria
-     * [should be implemented whenever retrieveUsers is implemented]
-     *
-     * Set getUserCount capability when implemented
-     *
-     * @param  array $filter array of field/pattern pairs, empty array for no filter
-     * @return int
-     */
-    //public function getUserCount($filter = array()) {
-        // FIXME implement
-    //    return 0;
-    //}
-
-    /**
-     * Define a group [implement only where required/possible]
-     *
-     * Set addGroup capability when implemented
-     *
-     * @param   string $group
-     * @return  bool
-     */
-    //public function addGroup($group) {
-        // FIXME implement
-    //    return false;
-    //}
-
-    /**
-     * Retrieve groups [implement only where required/possible]
-     *
-     * Set getGroups capability when implemented
-     *
-     * @param   int $start
-     * @param   int $limit
-     * @return  array
-     */
-    //public function retrieveGroups($start = 0, $limit = 0) {
-        // FIXME implement
-    //    return array();
-    //}
-
-    /**
-     * Return case sensitivity of the backend
-     *
-     * When your backend is caseinsensitive (eg. you can login with USER and
-     * user) then you need to overwrite this method and return false
-     *
-     * @return bool
-     */
-    public function isCaseSensitive() {
-        return true;
-    }
-
-    /**
-     * Sanitize a given username
-     *
-     * This function is applied to any user name that is given to
-     * the backend and should also be applied to any user name within
-     * the backend before returning it somewhere.
-     *
-     * This should be used to enforce username restrictions.
-     *
-     * @param string $user username
-     * @return string the cleaned username
-     */
-    public function cleanUser($user) {
-        return $user;
-    }
-
-    /**
-     * Sanitize a given groupname
-     *
-     * This function is applied to any groupname that is given to
-     * the backend and should also be applied to any groupname within
-     * the backend before returning it somewhere.
-     *
-     * This should be used to enforce groupname restrictions.
-     *
-     * Groupnames are to be passed without a leading '@' here.
-     *
-     * @param  string $group groupname
-     * @return string the cleaned groupname
-     */
-    public function cleanGroup($group) {
-        return $group;
-    }
-
-    /**
-     * Check Session Cache validity [implement only where required/possible]
-     *
-     * DokuWiki caches user info in the user's session for the timespan defined
-     * in $conf['auth_security_timeout'].
-     *
-     * This makes sure slow authentication backends do not slow down DokuWiki.
-     * This also means that changes to the user database will not be reflected
-     * on currently logged in users.
-     *
-     * To accommodate for this, the user manager plugin will touch a reference
-     * file whenever a change is submitted. This function compares the filetime
-     * of this reference file with the time stored in the session.
-     *
-     * This reference file mechanism does not reflect changes done directly in
-     * the backend's database through other means than the user manager plugin.
-     *
-     * Fast backends might want to return always false, to force rechecks on
-     * each page load. Others might want to use their own checking here. If
-     * unsure, do not override.
-     *
-     * @param  string $user - The username
-     * @return bool
-     */
-    //public function useSessionCache($user) {
-      // FIXME implement
-    //}
 }
 
 // vim:ts=4:sw=4:et:
