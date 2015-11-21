@@ -103,9 +103,15 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		$stmt->bindParam(':user', $user);
 
 		if (!$stmt->execute()) {
+			// Query execution failed
 			return false;
 		}
-		$user = $stmt->fetch();
+
+		$user = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($user === false) {
+			// Unknown user
+			return false;
+		}
 
 		// Group membership - add DokuWiki's default group
 		$groups = array_keys(unserialize($user['groups']));
