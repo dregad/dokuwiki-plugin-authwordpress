@@ -143,4 +143,4 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 }
 
-// vim:ts=4:sw=4:et:
+// vim:ts=4:sw=4:noet:
