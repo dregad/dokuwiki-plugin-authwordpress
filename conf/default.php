@@ -5,4 +5,8 @@
  * @author Damien Regad <dregad@mantisbt.org>
  */
 
-//$conf['fixme']    = 'FIXME';
+$conf['hostname'] = 'localhost';
+$conf['port']     = '';
+$conf['database'] = 'wordpress';
+$conf['username'] = 'USERNAME';
+$conf['password'] = 'PASSWORD';

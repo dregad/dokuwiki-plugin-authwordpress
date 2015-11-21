@@ -5,9 +5,8 @@
  * @author Damien Regad <dregad@mantisbt.org>
  */
 
-// keys need to match the config setting name
-// $lang['fixme'] = 'FIXME';
-
-
-
-//Setup VIM: ex: et ts=4 :
+$lang['hostname'] = "Name of the server hosting the WordPress MySQL database";
+$lang['port']     = "Port number where the database server is listening";
+$lang['database'] = "WordPress database name";
+$lang['username'] = "Database user's name";
+$lang['password'] = "Database user's password";
