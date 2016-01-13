@@ -10,3 +10,4 @@ $conf['port']     = '';
 $conf['database'] = 'wordpress';
 $conf['username'] = 'USERNAME';
 $conf['password'] = 'PASSWORD';
+$conf['prefix']   = 'wp_';
