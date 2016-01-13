@@ -40,4 +40,4 @@ with any 4.x version as well, although this has not been tested.
 ## Support
 
 Source code and support for this plugin can be found at
-https://github.com/dregad/dokuwiki-authwordpress
+https://github.com/dregad/dokuwiki-plugin-authwordpress
