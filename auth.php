@@ -46,7 +46,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 			meta_value AS groups
 		FROM %prefix%users u
 		JOIN %prefix%usermeta m ON u.id = m.user_id
-		WHERE meta_key = 'wp_capabilities'
+		WHERE meta_key = '%prefix%capabilities'
 		AND user_login = :user";
 
 	/**
