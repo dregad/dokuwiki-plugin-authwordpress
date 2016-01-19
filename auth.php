@@ -50,6 +50,12 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		AND user_login = :user";
 
 	/**
+	 * Wordpress database connection
+	 */
+	private $db;
+
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -106,8 +112,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	function getUserData($user, $requireGroups=true) {
 		global $conf;
 
-		$wp_db = $this->wp_connect();
-		$stmt = $wp_db->prepare($this->sql_wp_user_data);
+		$stmt = $this->db->prepare($this->sql_wp_user_data);
 		$stmt->bindParam(':user', $user);
 
 		if (!$stmt->execute()) {
@@ -138,8 +143,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 	/**
 	 * Connect to Wordpress database
-	 *
-	 * @return PDO object
+	 * Initializes $db property as PDO object
 	 */
 	private function wp_connect() {
 		$dsn = array(
@@ -152,7 +156,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		}
 		$dsn = 'mysql:' . implode(';', $dsn);
 
-		return new PDO($dsn, $this->getConf('username'), $this->getConf('password'));
+		$this->db = new PDO($dsn, $this->getConf('username'), $this->getConf('password'));
 	}
 
 }
