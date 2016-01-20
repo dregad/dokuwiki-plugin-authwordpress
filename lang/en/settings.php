@@ -10,3 +10,4 @@ $lang['port']     = "Port number where the database server is listening";
 $lang['database'] = "WordPress database name";
 $lang['username'] = "Database user's name";
 $lang['password'] = "Database user's password";
+$lang['prefix']   = "WordPress Database Table prefix";

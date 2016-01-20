@@ -18,7 +18,7 @@
  * @author     Damien Regad <dregad@mantisbt.org>
  * @copyright  2015 Damien Regad
  * @license    GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
- * @version    1.0
+ * @version    1.1
  * @link       https://github.com/dregad/dokuwiki-authwordpress
  */
 
@@ -39,13 +39,14 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	/**
 	 * SQL statement to retrieve User data from WordPress DB
 	 * (including group memberships)
+	 * '%prefix%' will be replaced by the actual prefix (from plugin config)
 	 */
-	const SQL_WP_USER_DATA = "SELECT
+	private $sql_wp_user_data = "SELECT
 			id, user_login, user_pass, user_email, display_name,
 			meta_value AS groups
-		FROM wp_users u
-		JOIN wp_usermeta m ON u.id = m.user_id
-		WHERE meta_key = 'wp_capabilities'
+		FROM %prefix%users u
+		JOIN %prefix%usermeta m ON u.id = m.user_id
+		WHERE meta_key = '%prefix%capabilities'
 		AND user_login = :user";
 
 	/**
@@ -64,6 +65,13 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 			$this->success = false;
 			return;
 		}
+
+		// Initialize SQL query with configured prefix
+		$this->sql_wp_user_data = str_replace(
+			'%prefix%',
+			$this->getConf('prefix'),
+			$this->sql_wp_user_data
+		);
 
 		$this->success = true;
 	}
@@ -99,7 +107,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		global $conf;
 
 		$wp_db = $this->wp_connect();
-		$stmt = $wp_db->prepare(self::SQL_WP_USER_DATA);
+		$stmt = $wp_db->prepare($this->sql_wp_user_data);
 		$stmt->bindParam(':user', $user);
 
 		if (!$stmt->execute()) {
