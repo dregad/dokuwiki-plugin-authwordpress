@@ -99,7 +99,10 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		}
 
 		$hasher = new PasswordHash(8, true);
-		return $hasher->CheckPassword($pass, $data['pass']);
+		$check = $hasher->CheckPassword($pass, $data['pass']);
+		dbglog("Password " . ($check ? 'OK' : 'Invalid'));
+
+		return $check;
 	}
 
 
@@ -114,15 +117,19 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 		$stmt = $this->db->prepare($this->sql_wp_user_data);
 		$stmt->bindParam(':user', $user);
+		dbglog("Retrieving data for user '$user'\n" . $this->sql_wp_user_data);
 
 		if (!$stmt->execute()) {
 			// Query execution failed
+			$err = $stmt->errorInfo();
+			dbglog("Error $err[1]: $err[2]");
 			return false;
 		}
 
 		$user = $stmt->fetch(PDO::FETCH_ASSOC);
 		if ($user === false) {
 			// Unknown user
+			dbglog("Unknown user");
 			return false;
 		}
 
