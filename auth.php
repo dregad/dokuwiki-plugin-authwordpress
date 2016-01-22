@@ -64,7 +64,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		// Try to establish a connection to the WordPress DB
 		// abort in case of failure
 		try {
-			$wp_db = $this->wp_connect();
+			$this->wp_connect();
 		}
 		catch (Exception $e) {
 			msg(sprintf($this->getLang('error_connect_failed'), $e->getMessage()));
