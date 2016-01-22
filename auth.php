@@ -135,7 +135,9 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 		// Group membership - add DokuWiki's default group
 		$groups = array_keys(unserialize($user['groups']));
-		$groups[] = $conf['defaultgroup'];
+		if($this->getConf('usedefaultgroup')) {
+			$groups[] = $conf['defaultgroup'];
+		}
 
 		$info = array(
 			'user' => $user['user_login'],

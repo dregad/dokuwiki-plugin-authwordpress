@@ -11,3 +11,4 @@ $lang['database'] = "WordPress database name";
 $lang['username'] = "Database user's name";
 $lang['password'] = "Database user's password";
 $lang['prefix']   = "WordPress Database Table prefix";
+$lang['usedefaultgroup'] = "If checked, the logged-in user will become a member of the <a href=\"http://www.dokuwiki.org/config:defaultgroup\">default group</a>, in addition to the group corresponding to their Wordpress role.";

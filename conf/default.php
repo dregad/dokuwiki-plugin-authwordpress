@@ -11,3 +11,4 @@ $conf['database'] = 'wordpress';
 $conf['username'] = 'USERNAME';
 $conf['password'] = 'PASSWORD';
 $conf['prefix']   = 'wp_';
+$conf['usedefaultgroup'] = 1;
