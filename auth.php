@@ -148,20 +148,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 			return false;
 		}
 
-		// Group membership - add DokuWiki's default group
-		$groups = array_keys(unserialize($user['groups']));
-		if($this->getConf('usedefaultgroup')) {
-			$groups[] = $conf['defaultgroup'];
-		}
-
-		$info = array(
-			'user' => $user['user_login'],
-			'name' => $user['display_name'],
-			'pass' => $user['user_pass'],
-			'mail' => $user['user_email'],
-			'grps' => $groups,
-		);
-		return $info;
+		return $this->wp2dw($user);
 	}
 
 
@@ -187,6 +174,31 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		$dsn = 'mysql:' . implode(';', $dsn);
 
 		$this->db = new PDO($dsn, $this->getConf('username'), $this->getConf('password'));
+	}
+
+	/**
+	 * Convert a Wordpress DB User row to DokuWiki user info array
+	 *
+	 * @param  array $user Raw Wordpress user table row
+	 * @return array user data
+	 */
+	protected function wp2dw($user) {
+		global $conf;
+
+		// Group membership - add DokuWiki's default group
+		$groups = array_keys(unserialize($user['groups']));
+		if($this->getConf('usedefaultgroup')) {
+			$groups[] = $conf['defaultgroup'];
+		}
+
+		$info = array(
+			'user' => $user['user_login'],
+			'name' => $user['display_name'],
+			'pass' => $user['user_pass'],
+			'mail' => $user['user_email'],
+			'grps' => $groups,
+		);
+		return $info;
 	}
 
 }
