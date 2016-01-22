@@ -155,6 +155,12 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * Initializes $db property as PDO object
 	 */
 	protected function wp_connect() {
+		if($this->db) {
+			// Already connected
+			return;
+		}
+
+		// Build connection string
 		$dsn = array(
 			'host=' . $this->getConf('hostname'),
 			'dbname=' . $this->getConf('database'),
