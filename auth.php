@@ -45,9 +45,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 			id, user_login, user_pass, user_email, display_name,
 			meta_value AS groups
 		FROM %prefix%users u
-		JOIN %prefix%usermeta m ON u.id = m.user_id
-		WHERE meta_key = '%prefix%capabilities'
-		AND user_login = :user";
+		JOIN %prefix%usermeta m ON u.id = m.user_id AND meta_key = '%prefix%capabilities'";
 
 	/**
 	 * Wordpress database connection
@@ -116,8 +114,20 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * @return  array userinfo (refer getUserData for internal userinfo details)
 	 */
 	public function retrieveUsers($start = 0, $limit = 0, $filter = array()) {
+		$stmt = $this->db->prepare($this->sql_wp_user_data);
+		$stmt->execute();
+
+		$users = array();
+		foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
+			$users[] = $this->wp2dw($user);
+		}
+
 		msg($this->getLang('user_list_use_wordpress'));
-		return array();
+		if($filter) {
+			msg($this->getLang('error_filters_unsupported'));
+		}
+
+		return $users;
 	}
 
 
@@ -128,11 +138,12 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * @return  array containing user data or false
 	 */
 	public function getUserData($user, $requireGroups=true) {
-		global $conf;
+		$sql = $this->sql_wp_user_data
+			. 'WHERE user_login = :user';
 
-		$stmt = $this->db->prepare($this->sql_wp_user_data);
+		$stmt = $this->db->prepare($sql);
 		$stmt->bindParam(':user', $user);
-		dbglog("Retrieving data for user '$user'\n" . $this->sql_wp_user_data);
+		dbglog("Retrieving data for user '$user'\n$sql");
 
 		if (!$stmt->execute()) {
 			// Query execution failed
