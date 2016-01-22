@@ -61,6 +61,8 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	public function __construct() {
 		parent::__construct();
 
+		$this->cando['getUsers'] = true;
+
 		// Try to establish a connection to the WordPress DB
 		// abort in case of failure
 		try {
@@ -103,6 +105,19 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 		dbglog("Password " . ($check ? 'OK' : 'Invalid'));
 
 		return $check;
+	}
+
+	/**
+	 * Bulk retrieval of user data
+	 *
+	 * @param   int   $start index of first user to be returned
+	 * @param   int   $limit max number of users to be returned
+	 * @param   array $filter array of field/pattern pairs
+	 * @return  array userinfo (refer getUserData for internal userinfo details)
+	 */
+	public function retrieveUsers($start = 0, $limit = 0, $filter = array()) {
+		msg($this->getLang('user_list_use_wordpress'));
+		return array();
 	}
 
 
