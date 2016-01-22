@@ -70,7 +70,9 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	public function __construct() {
 		parent::__construct();
 
+		// Plugin capabilities
 		$this->cando['getUsers'] = true;
+		$this->cando['getUserCount'] = true;
 
 		// Try to establish a connection to the WordPress DB
 		// abort in case of failure
@@ -132,6 +134,17 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 		$this->cacheAllUsers();
 		return $this->users;
+	}
+
+	/**
+	 * Return a count of the number of user which meet $filter criteria
+	 *
+	 * @param array $filter
+	 * @return int
+	 */
+	public function getUserCount($filter = array()) {
+		$this->cacheAllUsers();
+		return count($this->users);
 	}
 
 
