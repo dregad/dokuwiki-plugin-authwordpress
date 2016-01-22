@@ -41,7 +41,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * (including group memberships)
 	 * '%prefix%' will be replaced by the actual prefix (from plugin config)
 	 */
-	private $sql_wp_user_data = "SELECT
+	protected $sql_wp_user_data = "SELECT
 			id, user_login, user_pass, user_email, display_name,
 			meta_value AS groups
 		FROM %prefix%users u
@@ -52,7 +52,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	/**
 	 * Wordpress database connection
 	 */
-	private $db;
+	protected $db;
 
 
 	/**
@@ -112,7 +112,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * @param   string $user the user name
 	 * @return  array containing user data or false
 	 */
-	function getUserData($user, $requireGroups=true) {
+	public function getUserData($user, $requireGroups=true) {
 		global $conf;
 
 		$stmt = $this->db->prepare($this->sql_wp_user_data);
@@ -154,7 +154,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * Connect to Wordpress database
 	 * Initializes $db property as PDO object
 	 */
-	private function wp_connect() {
+	protected function wp_connect() {
 		$dsn = array(
 			'host=' . $this->getConf('hostname'),
 			'dbname=' . $this->getConf('database'),
