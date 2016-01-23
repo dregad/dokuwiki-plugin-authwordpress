@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ruleset name="DWPlugin">
+	<description>Coding standard for DokuWiki plugin (derived from PSR-2).</description>
+
+	<!-- show report in color, with progress -->
+	<arg name="report-width" value="auto"/>
+	<arg name="colors"/>
+	<arg value="p"/>
+
+	<!-- files to process by default -->
+	<arg name="extensions" value="php"/>
+	<file>.</file>
+	<!-- Ignoring file copied verbatim from Wordpress source code -->
+	<exclude-pattern>./class-phpass.php</exclude-pattern>
+
+	<arg name="encoding" value="utf-8"/>
+
+	<rule ref="PSR2">
+		<!-- Allow files to both declare symbols and execute code
+		     Needed because of the if (!defined('DOKU_INC'))
+		-->
+		<exclude name="PSR1.Files.SideEffects"/>
+
+		<!-- No need for namespace -->
+		<exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+	</rule>
+
+</ruleset>
