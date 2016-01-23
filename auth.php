@@ -45,15 +45,28 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 			id, user_login, user_pass, user_email, display_name,
 			meta_value AS groups
 		FROM %prefix%users u
-		JOIN %prefix%usermeta m ON u.id = m.user_id
-		WHERE meta_key = '%prefix%capabilities'
-		AND user_login = :user";
+		JOIN %prefix%usermeta m ON u.id = m.user_id AND meta_key = '%prefix%capabilities'";
 
 	/**
 	 * Wordpress database connection
 	 */
 	protected $db;
 
+	/**
+	 * Users cache
+	 */
+	protected $users;
+
+	/**
+	 * True if all users have been loaded in the cache
+	 * @see $users
+	 */
+	protected $usersCached = false;
+
+	/**
+	 * Filter pattern
+	 */
+	protected $filter;
 
 	/**
 	 * Constructor.
@@ -61,7 +74,9 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	public function __construct() {
 		parent::__construct();
 
+		// Plugin capabilities
 		$this->cando['getUsers'] = true;
+		$this->cando['getUserCount'] = true;
 
 		// Try to establish a connection to the WordPress DB
 		// abort in case of failure
@@ -117,7 +132,46 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 */
 	public function retrieveUsers($start = 0, $limit = 0, $filter = array()) {
 		msg($this->getLang('user_list_use_wordpress'));
-		return array();
+
+		$this->cacheAllUsers();
+
+		// Apply filter and pagination
+		$this->setFilter($filter);
+		$list = array();
+        foreach($this->users as $user => $info) {
+            if($this->applyFilter($user, $info)) {
+                if($i >= $start) {
+                    $list[$user] = $info;
+                    $count++;
+                    if($limit > 0 && $count >= $limit) {
+                    	break;
+                    }
+                }
+                $i++;
+            }
+        }
+
+		return $list;
+	}
+
+	/**
+	 * Return a count of the number of user which meet $filter criteria
+	 *
+	 * @param array $filter
+	 * @return int
+	 */
+	public function getUserCount($filter = array()) {
+		$this->cacheAllUsers();
+
+		if(empty($filter)) {
+			$count = count($this->users);
+		} else {
+			$this->setFilter($filter);
+	        foreach($this->users as $user => $info) {
+	            $count += (int)$this->applyFilter($user, $info);
+	        }
+		}
+		return $count;
 	}
 
 
@@ -128,11 +182,16 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 * @return  array containing user data or false
 	 */
 	public function getUserData($user, $requireGroups=true) {
-		global $conf;
+		if(isset($this->users[$user])) {
+			return $this->users[$user];
+		}
 
-		$stmt = $this->db->prepare($this->sql_wp_user_data);
+		$sql = $this->sql_wp_user_data
+			. 'WHERE user_login = :user';
+
+		$stmt = $this->db->prepare($sql);
 		$stmt->bindParam(':user', $user);
-		dbglog("Retrieving data for user '$user'\n" . $this->sql_wp_user_data);
+		dbglog("Retrieving data for user '$user'\n$sql");
 
 		if (!$stmt->execute()) {
 			// Query execution failed
@@ -148,20 +207,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 			return false;
 		}
 
-		// Group membership - add DokuWiki's default group
-		$groups = array_keys(unserialize($user['groups']));
-		if($this->getConf('usedefaultgroup')) {
-			$groups[] = $conf['defaultgroup'];
-		}
-
-		$info = array(
-			'user' => $user['user_login'],
-			'name' => $user['display_name'],
-			'pass' => $user['user_pass'],
-			'mail' => $user['user_email'],
-			'grps' => $groups,
-		);
-		return $info;
+		return $this->cacheUser($user);
 	}
 
 
@@ -188,6 +234,96 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 		$this->db = new PDO($dsn, $this->getConf('username'), $this->getConf('password'));
 	}
+
+	/**
+	 * Convert a Wordpress DB User row to DokuWiki user info array
+	 * and stores it in the users cache
+	 *
+	 * @param  array $user Raw Wordpress user table row
+	 * @return array user data
+	 */
+	protected function cacheUser($row) {
+		global $conf;
+
+		$login = $row['user_login'];
+
+		// If the user is already cached, just return it
+		if(isset($this->users[$login])) {
+			return $this->users[$login];
+		}
+
+		// Group membership - add DokuWiki's default group
+		$groups = array_keys(unserialize($row['groups']));
+		if($this->getConf('usedefaultgroup')) {
+			$groups[] = $conf['defaultgroup'];
+		}
+
+		$info = array(
+			'user' => $login,
+			'name' => $row['display_name'],
+			'pass' => $row['user_pass'],
+			'mail' => $row['user_email'],
+			'grps' => $groups,
+		);
+
+		$this->users[$login] = $info;
+		return $info;
+	}
+
+	/**
+	 * Loads all Wordpress users into the cache
+	 *
+	 * @return void
+	 */
+	protected function cacheAllUsers() {
+		if($this->usersCached) {
+			return;
+		}
+
+		$stmt = $this->db->prepare($this->sql_wp_user_data);
+		$stmt->execute();
+
+		foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
+			$this->cacheUser($user);
+		}
+
+		$this->usersCached = true;
+	}
+
+    /**
+     * Build filter patterns from given criteria
+     *
+     * @param array $filter
+     */
+    protected function setFilter($filter) {
+        $this->filter = array();
+        foreach($filter as $field => $value) {
+        	// Build PCRE pattern, utf8 + case insensitive
+            $this->filter[$field] = '/' . str_replace('/', '\/', $value) . '/ui';
+        }
+    }
+
+    /**
+     * Return true if given user matches filter pattern, false otherwise
+     *
+     * @param string $user login
+     * @param array  $info User data
+     * @return bool
+     */
+    protected function applyFilter($user, $info) {
+        foreach ($this->filter as $elem => $pattern) {
+        	if ($elem == 'grps') {
+                if (empty(preg_grep($pattern, $info['grps']))) {
+                	return false;
+                }
+        	} else {
+                if(!preg_match($pattern, $info[$elem])) {
+                	return false;
+                }
+        	}
+        }
+        return true;
+    }
 
 }
 
