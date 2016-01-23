@@ -63,6 +63,10 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 */
 	protected $usersCached = false;
 
+	/**
+	 * Filter pattern
+	 */
+	protected $filter;
 
 	/**
 	 * Constructor.
@@ -128,12 +132,26 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 */
 	public function retrieveUsers($start = 0, $limit = 0, $filter = array()) {
 		msg($this->getLang('user_list_use_wordpress'));
-		if($filter) {
-			msg($this->getLang('error_filters_unsupported'));
-		}
 
 		$this->cacheAllUsers();
-		return $this->users;
+
+		// Apply filter and pagination
+		$this->setFilter($filter);
+		$list = array();
+        foreach($this->users as $user => $info) {
+            if($this->applyFilter($user, $info)) {
+                if($i >= $start) {
+                    $list[$user] = $info;
+                    $count++;
+                    if($limit > 0 && $count >= $limit) {
+                    	break;
+                    }
+                }
+                $i++;
+            }
+        }
+
+		return $list;
 	}
 
 	/**
@@ -144,7 +162,16 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 	 */
 	public function getUserCount($filter = array()) {
 		$this->cacheAllUsers();
-		return count($this->users);
+
+		if(empty($filter)) {
+			$count = count($this->users);
+		} else {
+			$this->setFilter($filter);
+	        foreach($this->users as $user => $info) {
+	            $count += (int)$this->applyFilter($user, $info);
+	        }
+		}
+		return $count;
 	}
 
 
@@ -262,6 +289,41 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin {
 
 		$this->usersCached = true;
 	}
+
+    /**
+     * Build filter patterns from given criteria
+     *
+     * @param array $filter
+     */
+    protected function setFilter($filter) {
+        $this->filter = array();
+        foreach($filter as $field => $value) {
+        	// Build PCRE pattern, utf8 + case insensitive
+            $this->filter[$field] = '/' . str_replace('/', '\/', $value) . '/ui';
+        }
+    }
+
+    /**
+     * Return true if given user matches filter pattern, false otherwise
+     *
+     * @param string $user login
+     * @param array  $info User data
+     * @return bool
+     */
+    protected function applyFilter($user, $info) {
+        foreach ($this->filter as $elem => $pattern) {
+        	if ($elem == 'grps') {
+                if (empty(preg_grep($pattern, $info['grps']))) {
+                	return false;
+                }
+        	} else {
+                if(!preg_match($pattern, $info[$elem])) {
+                	return false;
+                }
+        	}
+        }
+        return true;
+    }
 
 }
 
