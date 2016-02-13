@@ -326,7 +326,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     {
         foreach ($this->filter as $elem => $pattern) {
             if ($elem == 'grps') {
-                if (empty(preg_grep($pattern, $info['grps']))) {
+                if (!preg_grep($pattern, $info['grps'])) {
                     return false;
                 }
             } else {
