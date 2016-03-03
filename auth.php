@@ -234,6 +234,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
         $dsn = array(
             'host=' . $this->getConf('hostname'),
             'dbname=' . $this->getConf('database'),
+            'charset=UTF8',
         );
         $port = $this->getConf('port');
         if ($port) {
