@@ -33,7 +33,7 @@ This plugin has been developped and tested with DokuWiki release *2015-08-10a
 ”Detritus”*, but will probably also work with *2013-05-10 “Weatherwax”* and
 later.
 
-On the backend side, the plugin works fine with WordPress 4.3 and 4.4.
+On the backend side, the plugin works fine with WordPress 4.3 through 4.7.
 It most likely does as well with any 4.x version, although this has not been
 tested.
 
