@@ -1,7 +1,7 @@
 base   authwordpress
 author Damien Regad
 email  dregad@mantisbt.org
-date   2016-03-03
+date   2020-03-14
 name   WordPress authentication plugin
 desc   Provides authentication against a WordPress MySQL database backend
 url    https://github.com/dregad/dokuwiki-plugin-authwordpress
