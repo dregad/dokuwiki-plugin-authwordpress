@@ -2,14 +2,15 @@
 
 Provides authentication against a WordPress MySQL database backend.
 
-Copyright(c) 2015 Damien Regad <dregad@mantisbt.org>
+Copyright (c) 2015 Damien Regad <dregad@mantisbt.org>
 
 
 ## License
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the
-[GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0.html).
+[GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0.html)
+or later.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
