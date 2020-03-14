@@ -31,15 +31,16 @@ it will not work!
 
 This plugin has been tested with the following DokuWiki releases:
 
+- 2018-04-22b "Greebo"
 - 2017-02-19e “Frusterick Manners”
 - 2016-06-26e “Elenor of Tsort”
 - 2015-08-10a ”Detritus”
 
 It will probably also work with *2013-05-10 “Weatherwax”* and later.
 
-On the back-end side, the plugin supports WordPress 4.3 through 4.9.
-It most likely works with any other 4.x version as well, although this 
-has not been tested.
+On the back-end side, the plugin supports WordPress releases 4.x and 5.x.
+It has been tested and confirmed to work on versions 4.3 to 4.9, 
+and 5.1 to 5.3.
 
 
 ## Support
