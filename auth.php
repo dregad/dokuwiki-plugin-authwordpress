@@ -44,6 +44,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
      * SQL statement to retrieve User data from WordPress DB
      * (including group memberships)
      * '%prefix%' will be replaced by the actual prefix (from plugin config)
+     * @var string $sql_wp_user_data
      */
     protected $sql_wp_user_data = "SELECT
             id, user_login, user_pass, user_email, display_name,
@@ -53,22 +54,26 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 
     /**
      * Wordpress database connection
+     * @var PDO $db
      */
     protected $db;
 
     /**
      * Users cache
+     * @var array $users
      */
     protected $users;
 
     /**
      * True if all users have been loaded in the cache
      * @see $users
+     * @var bool $usersCached
      */
     protected $usersCached = false;
 
     /**
      * Filter pattern
+     * @var array $filter
      */
     protected $filter;
 
@@ -185,8 +190,9 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     /**
      * Returns info about the given user
      *
-     * @param   string $user the user name
-     * @return  array containing user data or false
+     * @param string $user the user name
+     * @param bool   $requireGroups defaults to true
+     * @return array|false containing user data or false in case of error
      */
     public function getUserData($user, $requireGroups = true)
     {
@@ -249,7 +255,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
      * Convert a Wordpress DB User row to DokuWiki user info array
      * and stores it in the users cache
      *
-     * @param  array $user Raw Wordpress user table row
+     * @param  array $row Raw Wordpress user table row
      * @return array user data
      */
     protected function cacheUser($row)
