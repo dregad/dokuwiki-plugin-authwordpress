@@ -149,6 +149,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
         // Apply filter and pagination
         $this->setFilter($filter);
         $list = array();
+        $count = $i = 0;
         foreach ($this->users as $user => $info) {
             if ($this->applyFilter($user, $info)) {
                 if ($i >= $start) {
@@ -179,6 +180,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
             $count = count($this->users);
         } else {
             $this->setFilter($filter);
+            $count = 0;
             foreach ($this->users as $user => $info) {
                 $count += (int)$this->applyFilter($user, $info);
             }
