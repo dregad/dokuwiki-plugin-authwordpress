@@ -47,7 +47,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
      */
     protected $sql_wp_user_data = "SELECT
             id, user_login, user_pass, user_email, display_name,
-            meta_value AS groups
+            meta_value AS grps
         FROM %prefix%users u
         JOIN %prefix%usermeta m ON u.id = m.user_id AND meta_key = '%prefix%capabilities'";
 
@@ -264,7 +264,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
         }
 
         // Group membership - add DokuWiki's default group
-        $groups = array_keys(unserialize($row['groups']));
+        $groups = array_keys(unserialize($row['grps']));
         if ($this->getConf('usedefaultgroup')) {
             $groups[] = $conf['defaultgroup'];
         }
