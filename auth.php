@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin authwordpress (Auth Component)
  *
@@ -26,7 +27,6 @@
  *               PhpMissingReturnTypeInspection
  */
 
-
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) {
     die();
@@ -45,7 +45,6 @@ require_once('class-phpass.php');
 // @codingStandardsIgnoreLine
 class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 {
-
     /**
      * SQL statement to retrieve User data from WordPress DB
      * (including group memberships)

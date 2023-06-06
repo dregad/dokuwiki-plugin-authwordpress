@@ -12,10 +12,11 @@
 	<file>.</file>
 	<!-- Ignoring file copied verbatim from Wordpress source code -->
 	<exclude-pattern>./class-phpass.php</exclude-pattern>
+	<exclude-pattern>./lang</exclude-pattern>
 
 	<arg name="encoding" value="utf-8"/>
 
-	<rule ref="PSR2">
+	<rule ref="PSR12">
 		<!-- Allow files to both declare symbols and execute code
 		     Needed because of the if (!defined('DOKU_INC'))
 		-->
