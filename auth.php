@@ -28,6 +28,8 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
+use dokuwiki\Logger;
+
 /**
  * WordPress password hashing framework
  */
@@ -127,7 +129,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 
         $hasher = new PasswordHash(8, true);
         $check = $hasher->CheckPassword($pass, $data['pass']);
-        dbglog("Password " . ($check ? 'OK' : 'Invalid'));
+        $this->logDebug("Password " . ($check ? 'OK' : 'Invalid'));
 
         return $check;
     }
@@ -207,19 +209,19 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':user', $user);
-        dbglog("Retrieving data for user '$user'\n$sql");
+        $this->logDebug("Retrieving data for user '$user'\n$sql");
 
         if (!$stmt->execute()) {
             // Query execution failed
             $err = $stmt->errorInfo();
-            dbglog("Error $err[1]: $err[2]");
+            $this->logDebug("Error $err[1]: $err[2]");
             return false;
         }
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user === false) {
             // Unknown user
-            dbglog("Unknown user");
+            $this->logDebug("Unknown user");
             return false;
         }
 
@@ -345,6 +347,23 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
             }
         }
         return true;
+    }
+
+    /**
+     * Add message to debug log.
+     *
+     * @param string $msg
+     *
+     * @return void
+     */
+    protected function logDebug(string $msg): void
+    {
+        global $updateVersion;
+        if ($updateVersion >= 52) {
+            Logger::debug($msg);
+        } else {
+            dbglog($msg);
+        }
     }
 }
 
