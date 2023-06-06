@@ -30,18 +30,28 @@ it will not work!
 
 ## Compatibility
 
+### DokuWiki
+
 This plugin has been tested with the following DokuWiki releases:
 
-- 2018-04-22b "Greebo"
+- 2023-04-04a “Jack Jackrum” 
+- 2022-07-31b “Igor”
+
+Plugin version 2023-06-06 drops support for older DokuWiki releases; 
+use version 2020-03-14 if you're using:
+
+- 2020-07-29a “Hogfather”
+- 2018-04-22b “Greebo”
 - 2017-02-19e “Frusterick Manners”
 - 2016-06-26e “Elenor of Tsort”
-- 2015-08-10a ”Detritus”
+- 2015-08-10a “Detritus”
 
 It will probably also work with *2013-05-10 “Weatherwax”* and later.
 
-On the back-end side, the plugin supports WordPress releases 4.x and 5.x.
-It has been tested and confirmed to work on versions 4.3 to 4.9, 
-and 5.1 to 5.3.
+### WordPress
+
+On the back-end side, the plugin supports WordPress releases 4.x to 6.x.
+It has been tested and confirmed to work on versions 4.3 to 4.9, 5.1 to 5.3, 6.0 to 6.2.
 
 
 ## Support
