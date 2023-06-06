@@ -20,6 +20,10 @@
  * @license    GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @version    1.1
  * @link       https://github.com/dregad/dokuwiki-authwordpress
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ *               PhpUnused
+ *               PhpMissingReturnTypeInspection
  */
 
 
@@ -112,10 +116,11 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 
 
     /**
-     * Check user+password
+     * Check user+password.
      *
      * @param   string $user the user name
      * @param   string $pass the clear text password
+     *
      * @return  bool
      *
      * @uses PasswordHash::CheckPassword WordPress password hasher
@@ -135,11 +140,12 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     }
 
     /**
-     * Bulk retrieval of user data
+     * Bulk retrieval of user data.
      *
      * @param   int   $start index of first user to be returned
      * @param   int   $limit max number of users to be returned
      * @param   array $filter array of field/pattern pairs
+     *
      * @return  array userinfo (refer getUserData for internal userinfo details)
      */
     public function retrieveUsers($start = 0, $limit = 0, $filter = array())
@@ -169,9 +175,10 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     }
 
     /**
-     * Return a count of the number of user which meet $filter criteria
+     * Return a count of the number of user which meet $filter criteria.
      *
      * @param array $filter
+     *
      * @return int
      */
     public function getUserCount($filter = array())
@@ -192,10 +199,11 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 
 
     /**
-     * Returns info about the given user
+     * Returns info about the given user.
      *
      * @param string $user the user name
      * @param bool   $requireGroups defaults to true
+     *
      * @return array|false containing user data or false in case of error
      */
     public function getUserData($user, $requireGroups = true)
@@ -230,10 +238,13 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
 
 
     /**
-     * Connect to Wordpress database
-     * Initializes $db property as PDO object
+     * Connect to Wordpress database.
+     *
+     * Initializes $db property as PDO object.
+     *
+     * @return void
      */
-    protected function connectWordpressDb()
+    protected function connectWordpressDb(): void
     {
         if ($this->db) {
             // Already connected
@@ -256,13 +267,16 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     }
 
     /**
+     * Cache User Data.
+     *
      * Convert a Wordpress DB User row to DokuWiki user info array
-     * and stores it in the users cache
+     * and stores it in the users cache.
      *
      * @param  array $row Raw Wordpress user table row
+     *
      * @return array user data
      */
-    protected function cacheUser($row)
+    protected function cacheUser(array $row): array
     {
         global $conf;
 
@@ -292,7 +306,7 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     }
 
     /**
-     * Loads all Wordpress users into the cache
+     * Loads all Wordpress users into the cache.
      *
      * @return void
      */
@@ -313,11 +327,13 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     }
 
     /**
-     * Build filter patterns from given criteria
+     * Build filter patterns from given criteria.
      *
      * @param array $filter
+     *
+     * @return void
      */
-    protected function setFilter($filter)
+    protected function setFilter(array $filter): void
     {
         $this->filter = array();
         foreach ($filter as $field => $value) {
@@ -327,13 +343,14 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     }
 
     /**
-     * Return true if given user matches filter pattern, false otherwise
+     * Return true if given user matches filter pattern, false otherwise.
      *
      * @param string $user login
      * @param array  $info User data
+     *
      * @return bool
      */
-    protected function applyFilter($user, $info)
+    protected function applyFilter(string $user, array $info): bool
     {
         foreach ($this->filter as $elem => $pattern) {
             if ($elem == 'grps') {
