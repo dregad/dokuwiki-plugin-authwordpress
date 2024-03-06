@@ -34,10 +34,11 @@ it will not work!
 
 This plugin has been tested with the following DokuWiki releases:
 
-- 2023-04-04a “Jack Jackrum” 
+- 2024-02-06a “Kaos”
+- 2023-04-04a “Jack Jackrum”
 - 2022-07-31b “Igor”
 
-Plugin version 2023-06-06 drops support for older DokuWiki releases; 
+Plugin version 2023-06-06 drops support for older DokuWiki releases;
 use version 2020-03-14 if you're using:
 
 - 2020-07-29a “Hogfather”
@@ -51,7 +52,7 @@ It will probably also work with *2013-05-10 “Weatherwax”* and later.
 ### WordPress
 
 On the back-end side, the plugin supports WordPress releases 4.x to 6.x.
-It has been tested and confirmed to work on versions 4.3 to 4.9, 5.1 to 5.3, 6.0 to 6.2.
+It has been tested and confirmed to work on versions 4.3 to 4.9, 5.1 to 5.3, 6.0 to 6.4.
 
 
 ## Support
