@@ -117,6 +117,11 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     /**
      * Check user+password.
      *
+     * Note that WordPress adds slashes to the password before generating the hash
+     * {@see https://developer.wordpress.org/reference/functions/wp_magic_quotes/},
+     * so we need to do the same otherwise password containing `\`, `'` or `"` will
+     * never match ({@see https://github.com/dregad/dokuwiki-plugin-authwordpress/issues/23)}.
+     *
      * @param   string $user the user name
      * @param   string $pass the clear text password
      *
@@ -132,7 +137,9 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
         }
 
         $hasher = new PasswordHash(8, true);
-        $check = $hasher->CheckPassword($pass, $data['pass']);
+
+        // Add slashes to match WordPress behavior
+        $check = $hasher->CheckPassword(addslashes($pass), $data['pass']);
         $this->logDebug("Password " . ($check ? 'OK' : 'Invalid'));
 
         return $check;
