@@ -135,12 +135,16 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
         if ($data === false) {
             return false;
         }
-
-        $hasher = new PasswordHash(8, true);
-
-        // Add slashes to match WordPress behavior
-        $check = $hasher->CheckPassword(addslashes($pass), $data['pass']);
-        $this->logDebug("Password " . ($check ? 'OK' : 'Invalid'));
+        // check if new type of hash
+        if(str_starts_with( $data['pass'], '$wp' )){
+                $password_to_verify = base64_encode( hash_hmac( 'sha384', $pass, 'wp-sha384', true ) );
+                $check              = password_verify( $password_to_verify, substr( $data['pass'], 3 ) );
+        }else{
+            $hasher = new PasswordHash(8, true);
+            // Add slashes to match WordPress behavior
+            $check = $hasher->CheckPassword(addslashes($pass), $data['pass']);
+        }
+            $this->logDebug("Password " . ($check ? 'OK' : 'Invalid'));
 
         return $check;
     }
