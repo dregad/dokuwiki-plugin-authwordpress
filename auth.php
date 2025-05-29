@@ -23,8 +23,8 @@
  * @link       https://github.com/dregad/dokuwiki-authwordpress
  *
  * @noinspection PhpComposerExtensionStubsInspection
- *               PhpUnused
- *               PhpMissingReturnTypeInspection
+ * @noinspection PhpUnused
+ * @noinspection PhpMissingReturnTypeInspection
  */
 
 // must be run within Dokuwiki
@@ -365,6 +365,7 @@ class auth_plugin_authwordpress extends AuthPlugin
      * @param array  $info User data
      *
      * @return bool
+     * @noinspection PhpUnusedParameterInspection
      */
     protected function applyFilter(string $user, array $info): bool
     {
@@ -395,6 +396,7 @@ class auth_plugin_authwordpress extends AuthPlugin
         if ($updateVersion >= 52) {
             Logger::debug($msg);
         } else {
+            /** @noinspection PhpDeprecationInspection */
             dbglog($msg);
         }
     }
