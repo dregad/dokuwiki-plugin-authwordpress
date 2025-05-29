@@ -117,12 +117,16 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
     /**
      * Check user+password.
      *
-     * Note that WordPress adds slashes to the password before generating the hash
+     * Starting with WordPress 6.8, passwords are bcrypt-hashed with standard
+     * php functions.
+     * {@see https://make.wordpress.org/core/2025/02/17/wordpress-6-8-will-use-bcrypt-for-password-hashing/}
+     *
+     * Earlier versions of WordPress add slashes to the password before generating the hash
      * {@see https://developer.wordpress.org/reference/functions/wp_magic_quotes/},
      * so we need to do the same otherwise password containing `\`, `'` or `"` will
      * never match ({@see https://github.com/dregad/dokuwiki-plugin-authwordpress/issues/23)}.
      *
-     * @param   string $user the user name
+     * @param   string $user the username
      * @param   string $pass the clear text password
      *
      * @return  bool
@@ -135,11 +139,15 @@ class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
         if ($data === false) {
             return false;
         }
-
-        $hasher = new PasswordHash(8, true);
-
-        // Add slashes to match WordPress behavior
-        $check = $hasher->CheckPassword(addslashes($pass), $data['pass']);
+        // Check for WordPress 6.8+ type hash
+        if (str_starts_with($data['pass'], '$wp')) {
+            $password_to_verify = base64_encode(hash_hmac('sha384', $pass, 'wp-sha384', true));
+            $check = password_verify($password_to_verify, substr($data['pass'], 3));
+        } else {
+            $hasher = new PasswordHash(8, true);
+            // Add slashes to match WordPress behavior
+            $check = $hasher->CheckPassword(addslashes($pass), $data['pass']);
+        }
         $this->logDebug("Password " . ($check ? 'OK' : 'Invalid'));
 
         return $check;
