@@ -52,7 +52,7 @@ class auth_plugin_authwordpress extends AuthPlugin
      * '%prefix%' will be replaced by the actual prefix (from plugin config)
      * @var string $sql_wp_user_data
      */
-    protected $sql_wp_user_data = "SELECT
+    protected string $sql_wp_user_data = "SELECT
             id, user_login, user_pass, user_email, display_name,
             meta_value AS grps
         FROM %prefix%users u
@@ -62,26 +62,26 @@ class auth_plugin_authwordpress extends AuthPlugin
      * Wordpress database connection
      * @var PDO $db
      */
-    protected $db;
+    protected PDO $db;
 
     /**
      * Users cache
      * @var array $users
      */
-    protected $users;
+    protected array $users;
 
     /**
      * True if all users have been loaded in the cache
      * @see $users
      * @var bool $usersCached
      */
-    protected $usersCached = false;
+    protected bool $usersCached = false;
 
     /**
      * Filter pattern
      * @var array $filter
      */
-    protected $filter;
+    protected array $filter;
 
     /**
      * Constructor.
@@ -262,7 +262,7 @@ class auth_plugin_authwordpress extends AuthPlugin
      */
     protected function connectWordpressDb(): void
     {
-        if ($this->db) {
+        if (isset($this->db)) {
             // Already connected
             return;
         }
