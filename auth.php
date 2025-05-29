@@ -32,6 +32,7 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
+use dokuwiki\Extension\AuthPlugin;
 use dokuwiki\Logger;
 
 /**
@@ -43,7 +44,7 @@ require_once('class-phpass.php');
  * Authentication class
  */
 // @codingStandardsIgnoreLine
-class auth_plugin_authwordpress extends DokuWiki_Auth_Plugin
+class auth_plugin_authwordpress extends AuthPlugin
 {
     /**
      * SQL statement to retrieve User data from WordPress DB
