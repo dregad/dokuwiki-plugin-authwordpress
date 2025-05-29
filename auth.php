@@ -20,7 +20,7 @@
  * @copyright  2015 Damien Regad
  * @license    GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @version    1.1
- * @link       https://github.com/dregad/dokuwiki-authwordpress
+ * @link       https://github.com/dregad/dokuwiki-plugin-authwordpress
  *
  * @noinspection PhpComposerExtensionStubsInspection
  * @noinspection PhpUnused
