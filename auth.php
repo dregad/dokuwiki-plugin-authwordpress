@@ -98,7 +98,7 @@ class auth_plugin_authwordpress extends AuthPlugin
         // abort in case of failure
         try {
             $this->connectWordpressDb();
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             msg(sprintf($this->getLang('error_connect_failed'), $e->getMessage()));
             $this->success = false;
             return;
@@ -258,6 +258,7 @@ class auth_plugin_authwordpress extends AuthPlugin
      * Initializes $db property as PDO object.
      *
      * @return void
+     * @throws PDOException
      */
     protected function connectWordpressDb(): void
     {
