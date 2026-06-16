@@ -4,6 +4,18 @@ Provides authentication against a WordPress MySQL database backend.
 
 Copyright (c) 2015 Damien Regad <dregad@mantisbt.org>
 
+> [!WARNING]
+> Please note that I no longer actively use this plugin.
+>
+> I intend to continue maintaining it, but will not proactively test it
+> against the latest DokuWiki and WordPress releases.
+>
+> It has been pretty stable over the years so I do not expect problems,
+> but should you experience difficulties, please open a
+> [new Issue](https://github.com/dregad/dokuwiki-plugin-authwordpress/issues/new/choose)
+> or even better, send a patch with a
+> [Pull Request](https://github.com/dregad/dokuwiki-plugin-authwordpress/compare).
+
 
 ## License
 
