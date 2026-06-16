@@ -30,18 +30,22 @@ it will not work!
 
 ## Compatibility
 
+PHP 7.4 or later is required.
+
 ### DokuWiki
 
 This plugin has been tested with the following DokuWiki releases:
 
-- 2025-05-14a "Librarian"
+- 2025-05-14b "Librarian"
 - 2024-02-06b “Kaos”
+
+Plugin version 2026-06-16 dropped support for older DokuWiki releases.
+
+Use version **2025-05-29** for compatibility with:
 - 2023-04-04a “Jack Jackrum”
 - 2022-07-31b “Igor”
 
-Plugin version 2023-06-06 drops support for older DokuWiki releases;
-use version 2020-03-14 if you're using:
-
+Use version **2020-03-14** for compatibility with:
 - 2020-07-29a “Hogfather”
 - 2018-04-22b “Greebo”
 - 2017-02-19e “Frusterick Manners”
